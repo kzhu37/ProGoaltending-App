@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarDays, House, Library, Plus } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CreaseIcon } from "@/components/ui/crease-icon";
@@ -22,11 +22,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="ambient-copy ambient-left" aria-hidden="true"><span>01</span> DEVELOPMENT<br />CONTINUITY</div>
       <div className="ambient-copy ambient-right" aria-hidden="true">OTTAWA<br /><span>45.4215° N</span></div>
       <div className="app-frame">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div key={pathname} className="route-view" initial={{ opacity: 0, y: 7 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-            {children}
-          </motion.div>
-        </AnimatePresence>
+        <motion.div
+          key={pathname}
+          className="route-view"
+          initial={{ opacity: 0, y: 7 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {children}
+        </motion.div>
         <nav className="bottom-nav" aria-label="Primary navigation">
           {navItems.map((item) => {
             const active = item.match(pathname);
