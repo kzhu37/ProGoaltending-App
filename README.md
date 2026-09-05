@@ -1,4 +1,4 @@
-# PRO Goaltending — Athlete Product Demo
+# PRO Goaltending - Athlete Product Demo
 
 A mobile-first, fictional product concept for existing and repeat PRO Goaltending athletes. It demonstrates how training, coaching feedback, assigned review, booking, and the athlete's development Blueprint can remain connected between sessions.
 
@@ -34,18 +34,18 @@ Import the repository into Vercel or run `vercel` from the project directory. Th
 - The anonymous account is `ath_demo_001`; all athlete, coach, session, feedback, availability, and pricing data is fictional.
 - Actions persist in the browser under the versioned `pro-demo-state-v1` local-storage key.
 - The center navigation action opens the complete booking flow. Checkout uses a separated `MockPaymentGateway`; it accepts no card data and processes no payment.
-- Resource playback is an abstract, predetermined coaching visualization—not uploaded video, AI analysis, athlete tracking, or biomechanics.
+- Resource playback is an abstract, predetermined coaching visualization - not uploaded video, AI analysis, athlete tracking, or biomechanics.
 - Settings → Demo Control Center exposes lifecycle scenarios, a virtual Ottawa clock, fictional coach events, Presentation Mode, the product tour, and Reset Demo.
 - Reset Demo restores the complete curated fixture state, including preferences and interrupted actions.
 
 ## Product routes
 
-- `/` — context-aware Home
-- `/training` and `/training/[sessionId]` — upcoming timeline, history, session actions, and recaps
-- `/blueprint` and `/blueprint/[focusId]` — interactive crease, development focuses, and history
-- `/library` and `/library/[resourceId]` — assigned work and persistent review progress
-- `/book` — recommendation through confirmation
-- `/notifications`, `/settings`, `/demo` — updates, preferences, and presentation controls
+- `/` - context-aware Home
+- `/training` and `/training/[sessionId]` - upcoming timeline, history, session actions, and recaps
+- `/blueprint` and `/blueprint/[focusId]` - interactive crease, development focuses, and history
+- `/library` and `/library/[resourceId]` - assigned work and persistent review progress
+- `/book` - recommendation through confirmation
+- `/notifications`, `/settings`, `/demo` - updates, preferences, and presentation controls
 
 ## Future production path
 
