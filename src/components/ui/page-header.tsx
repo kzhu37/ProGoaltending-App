@@ -23,7 +23,7 @@ export function PageHeader({ title, overline, back = false, settings = false, ch
         {back ? (
           <button className="icon-button" onClick={() => router.back()} aria-label="Go back"><ArrowLeft size={20} /></button>
         ) : (
-          <Link href="/" className="wordmark" aria-label="PRO Goaltending home"><Image src="/brand/pro-goaltending-logo.png" alt="PRO Goaltending" width={112} height={37} priority /></Link>
+          <Link href="/" className="wordmark" aria-label="PRO Goaltending home"><Image src="/brand/pro-goaltending-logo.svg" alt="PRO Goaltending" width={112} height={37} priority /></Link>
         )}
         {title ? <div><span className="header-overline">{overline}</span><h1>{title}</h1></div> : null}
       </div>
