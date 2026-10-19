@@ -160,7 +160,7 @@ npm run build
 npm start
 ```
 
-The demo does not need application API credentials or a database. The UI loads Google-hosted fonts and training-card backgrounds from PRO's public website, so those assets may require network access. Maps and Google Calendar links open third-party sites only when chosen.
+The demo does not need application API credentials or a database. Next.js obtains Google font assets at build time and serves them with the app; builds may require network access. Training-card backgrounds are fetched from PRO's public website at runtime. Maps and Google Calendar links open third-party sites only when chosen.
 
 ## Contribution and project boundaries
 
