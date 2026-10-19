@@ -60,7 +60,7 @@ The goal is not a claim that the prototype improves athletic performance. It is 
 
 ## Engineering center: coordinated athlete state
 
-The visible screens are intentionally separated, but they do not own separate copies of athlete records. Domain models live in [\`src/domain/types.ts\`](src/domain/types.ts), while [\`src/store/app-store.ts\`](src/store/app-store.ts) coordinates related updates through one persistent application store.
+The visible screens are intentionally separated, but they do not own separate copies of athlete records. Domain models live in [`src/domain/types.ts`](src/domain/types.ts), while [`src/store/app-store.ts`](src/store/app-store.ts) coordinates related updates through one persistent application store.
 
 | Action | Related state and visible consequences |
 | --- | --- |
@@ -77,9 +77,9 @@ This is intentionally a **single-browser demo consistency model**, not distribut
 
 ### Recommendation and availability are explicit rules
 
-[\`recommendSessionType\`](src/domain/recommendation.ts) ranks training formats from active Blueprint focuses with fixed weights. It is an inspectable rule, not AI coaching.
+[`recommendSessionType`](src/domain/recommendation.ts) ranks training formats from active Blueprint focuses with fixed weights. It is an inspectable rule, not AI coaching.
 
-[\`DemoAvailabilityService\`](src/services/availability.ts) derives repeatable fictional slots from facility, format, date, coach identifiers, and booked session state. The booking interface computes its date and facility counts from the actual available options, so a reserved slot changes both the options and the count.
+[`DemoAvailabilityService`](src/services/availability.ts) derives repeatable fictional slots from facility, format, date, coach identifiers, and booked session state. The booking interface computes its date and facility counts from the actual available options, so a reserved slot changes both the options and the count.
 
 No displayed slot implies that the named facility hosts the fictional session or that PRO has real availability there.
 
@@ -87,12 +87,12 @@ No displayed slot implies that the named facility hosts the fictional session or
 
 A real training lifecycle unfolds over days or weeks. A useful demo needs to show those states without asking a reviewer to return later.
 
-[\`createScenarioState\`](src/data/demo-fixtures.ts) supplies scenarios for training today, training soon, completion, pending feedback, published feedback, no upcoming sessions, and multiple scheduled sessions. [\`/demo\`](https://progoaltending-app.vercel.app/demo) exposes these presets, simulated coach actions, Presentation Mode, a product tour, and complete reset.
+[`createScenarioState`](src/data/demo-fixtures.ts) supplies scenarios for training today, training soon, completion, pending feedback, published feedback, no upcoming sessions, and multiple scheduled sessions. [`/demo`](https://progoaltending-app.vercel.app/demo) exposes these presets, simulated coach actions, Presentation Mode, a product tour, and complete reset.
 
-- **Virtual time:** contextual session phases use \`virtualNowISO\`, including the 45-minute "soon" threshold.
-- **Ottawa calendar semantics:** date generation and rebasing use \`America/Toronto\` calendar days instead of assuming every local day lasts 24 hours.
+- **Virtual time:** contextual session phases use `virtualNowISO`, including the 45-minute "soon" threshold.
+- **Ottawa calendar semantics:** date generation and rebasing use `America/Toronto` calendar days instead of assuming every local day lasts 24 hours.
 - **Deterministic fixtures:** scenarios return a connected set of sessions, focus history, recaps, resources, notifications, and development events.
-- **Persistence:** the \`pro-demo-state-v1\` storage key retains interactions in one browser; a hydration gate prevents inconsistent initial server/client rendering.
+- **Persistence:** the `pro-demo-state-v1` storage key retains interactions in one browser; a hydration gate prevents inconsistent initial server/client rendering.
 - **Reset:** returns the demonstration to its curated initial data, rather than preserving partially completed actions.
 
 Presentation Mode is a deterministic showcase control. It does not signal a separate coach or administrative account.
@@ -114,16 +114,16 @@ The resource interface uses predetermined coaching illustrations and progress be
 
 ## Architecture and deliberate tradeoffs
 
-\`\`\`text
+```text
 src/domain       Types, session lifecycle, Ottawa time, recommendation rules
 src/data         Fictional fixtures, lifecycle scenarios, date rebasing
 src/services     Demo availability, mock payment, calendar/maps, no-op analytics
 src/store        Coordinated actions, persisted state, rehydration, reset
 src/components   Athlete screens, booking, Blueprint, resources, UI controls
 src/app          Next.js routes, metadata, loading and error boundaries, styles
-\`\`\`
+```
 
-[\`ARCHITECTURE.md\`](ARCHITECTURE.md) describes the data flow, booking and recap invariants, hydration, and replacement boundaries.
+[`ARCHITECTURE.md`](ARCHITECTURE.md) describes the data flow, booking and recap invariants, hydration, and replacement boundaries.
 
 | Design choice | Why | Boundary |
 | --- | --- | --- |
@@ -145,20 +145,20 @@ The [verification workflow](.github/workflows/verify.yml) runs linting, TypeScri
 
 Requires Node.js 20.9 or newer and npm. Node.js 22 is used in CI.
 
-\`\`\`bash
+```bash
 npm ci
 npm run dev
-\`\`\`
+```
 
-Open \`http://localhost:3000\`. To check the project:
+Open `http://localhost:3000`. To check the project:
 
-\`\`\`bash
+```bash
 npm run lint
 npm run typecheck
 npm test
 npm run build
 npm start
-\`\`\`
+```
 
 The demo does not need application API credentials or a database. The UI loads Google-hosted fonts and training-card backgrounds from PRO's public website, so those assets may require network access. Maps and Google Calendar links open third-party sites only when chosen.
 
