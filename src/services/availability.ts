@@ -22,7 +22,7 @@ export type AvailabilityQuery = {
 };
 
 export interface AvailabilityService {
-  listDates(state: DemoState, days?: number): DateOption[];
+  listDates(state: DemoState, days?: number, query?: Omit<AvailabilityQuery, "dateKey">): DateOption[];
   listTimes(state: DemoState, query: AvailabilityQuery): TimeOption[];
   listCoaches(state: DemoState, slot: TimeOption): Coach[];
 }
@@ -53,11 +53,14 @@ export function parseTimeSlotId(slotId: string): AvailabilityQuery & { hour: num
 }
 
 export class DemoAvailabilityService implements AvailabilityService {
-  listDates(state: DemoState, days = 9): DateOption[] {
+  listDates(state: DemoState, days = 9, query?: Omit<AvailabilityQuery, "dateKey">): DateOption[] {
     const reference = new Date(state.virtualNowISO);
     return Array.from({ length: days }, (_, index) => {
       const date = ottawaDateAt(reference, index + 1, 12);
-      return { key: dateKey(date.toISOString()), iso: date.toISOString(), availableCount: 3 + (index % 4) };
+      const key = dateKey(date.toISOString());
+      // Only report an availability count when a facility and training format are known.
+      const availableCount = query ? this.listTimes(state, { ...query, dateKey: key }).length : 0;
+      return { key, iso: date.toISOString(), availableCount };
     });
   }
 

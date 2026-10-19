@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 620" role="img" aria-labelledby="title desc">
+  <title id="title">Connected athlete lifecycle</title>
+  <desc id="desc">Six sequential stages, from focus-based training selection through booking, coaching recap, Blueprint update, assigned review and next training. A shared local demo state connects all six views.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c1b31"/>
+      <stop offset="1" stop-color="#08111f"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#183255"/>
+      <stop offset="1" stop-color="#10233e"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#86baff" stroke-width="1.6"/></marker>
+  </defs>
+  <rect width="1100" height="620" rx="28" fill="url(#bg)"/>
+  <text x="60" y="59" fill="#81b9ff" font-family="Arial, sans-serif" font-size="15" letter-spacing="3">PRO GOALTENDING / PRODUCT MODEL</text>
+  <text x="60" y="104" fill="#f3f8ff" font-family="Arial, sans-serif" font-size="31" font-weight="700">One connected athlete lifecycle</text>
+  <text x="60" y="137" fill="#b6c9e1" font-family="Arial, sans-serif" font-size="16">Actions change the athlete context, not just the screen that initiated them.</text>
+  <g fill="url(#card)" stroke="#366298" stroke-width="1.5">
+    <rect x="60" y="179" width="293" height="97" rx="15"/><rect x="404" y="179" width="293" height="97" rx="15"/><rect x="748" y="179" width="293" height="97" rx="15"/>
+    <rect x="60" y="326" width="293" height="97" rx="15"/><rect x="404" y="326" width="293" height="97" rx="15"/><rect x="748" y="326" width="293" height="97" rx="15"/>
+  </g>
+  <g font-family="Arial, sans-serif">
+    <g fill="#81b9ff" font-size="14" font-weight="700">
+      <text x="83" y="207">01 / BLUEPRINT</text><text x="427" y="207">02 / BOOKING</text><text x="771" y="207">03 / TRAINING</text>
+      <text x="83" y="354">06 / NEXT SESSION</text><text x="427" y="354">05 / REVIEW</text><text x="771" y="354">04 / RECAP</text>
+    </g>
+    <g fill="#f4f8fe" font-size="22" font-weight="700">
+      <text x="83" y="243">Choose a focus</text><text x="427" y="243">Reserve a demo slot</text><text x="771" y="243">See the session</text>
+      <text x="83" y="390">Carry work forward</text><text x="427" y="390">Complete a resource</text><text x="771" y="390">Apply coach feedback</text>
+    </g>
+  </g>
+  <g stroke="#86baff" stroke-width="2.2" fill="none" marker-end="url(#arrow)">
+    <path d="M354 227 H399"/><path d="M698 227 H743"/>
+    <path d="M895 278 V319"/>
+    <path d="M748 375 H702"/><path d="M404 375 H358"/>
+    <path d="M205 326 V294 Q205 284 215 284 H50 Q40 284 40 269 V220 Q40 205 55 205" stroke-dasharray="5 7" opacity=".55" marker-end="none"/>
+  </g>
+  <rect x="60" y="467" width="981" height="90" rx="16" fill="#102743" stroke="#3a6ba4"/>
+  <g font-family="Arial, sans-serif">
+    <text x="84" y="499" fill="#81b9ff" font-size="15" font-weight="700" letter-spacing="1">ONE COORDINATED DEMO STATE</text>
+    <text x="84" y="531" fill="#f1f7ff" font-size="19">Sessions  /  Recaps  /  Blueprint  /  Resources  /  Notifications  /  Activity</text>
+    <text x="60" y="592" fill="#9eb6d3" font-size="15">Deterministic fixtures  ·  Virtual Ottawa time  ·  Versioned local browser persistence  ·  No production data</text>
+  </g>
+</svg>
