@@ -1,33 +1,78 @@
-# Architecture
+# PRO Goaltending | Architecture
 
-## Boundaries
+This document describes the currently implemented fictional-data athlete demo. It is not a production system design or an assertion about PRO Goaltending's internal infrastructure.
 
-- `src/domain` contains framework-independent types, Ottawa date handling, session lifecycle derivation, and deterministic recommendation rules.
-- `src/data/demo-fixtures.ts` creates a complete athlete state relative to the current demo date and provides scenario presets for the virtual clock.
-- `src/services` defines deterministic availability, calendar/maps actions, a payment interface with `MockPaymentGateway`, and a no-op analytics adapter.
-- `src/store/app-store.ts` coordinates cross-domain actions. Zustand persistence is explicitly versioned, client-rehydrated, and reset-safe.
-- `src/app` owns App Router routes, metadata, manifest, loading/error boundaries, and design tokens. Interactive product components live under `src/components`.
+## Runtime boundaries
 
-## State flow
+| Layer | Responsibility |
+| --- | --- |
+| [\`src/domain\`](src/domain) | Framework-independent product types, session phase derivation, focus recommendation, Ottawa date/time rules |
+| [\`src/data/demo-fixtures.ts\`](src/data/demo-fixtures.ts) | Coherent synthetic athlete records, demo scenarios, recap payloads, and calendar-day rebasing |
+| [\`src/services\`](src/services) | Deterministic fictional availability, mock gateway, calendar/maps actions, no-op analytics |
+| [\`src/store/app-store.ts\`](src/store/app-store.ts) | Action coordination, a single source of truth, persistence, reset, presentation state |
+| [\`src/components\`](src/components) | Product screens consuming shared state; sheet, booking, recap and interaction controls |
+| [\`src/app\`](src/app) | Next.js App Router screens, metadata, manifest, design system, hydration and error boundaries |
 
-```text
-athlete action
-  → domain/service rule
-  → one coordinated store transaction
-  → sessions / availability / Blueprint / resources / notifications / activity
-  → versioned local persistence
-```
+The app deliberately keeps presentation components separate from state and domain rules. It does not use a network API or a customer database.
 
-Booking, cancellation, rescheduling, resource completion, recap publishing, and Blueprint changes update every relevant consumer from one state transition. UI components never maintain competing fixture arrays.
+## Connected lifecycle
 
-## Time and hydration
+1. A focus-ranked recommendation proposes a training format. The athlete can choose another.
+2. \`DemoAvailabilityService\` generates repeatable time and coach options from a facility, training type, Ottawa date, and booked demo sessions.
+3. \`completeBooking\` checks the currently available slot and coach, then adds a scheduled session, notification, booking-draft confirmation, and development event in a coordinated store update.
+4. \`cancelSession\` marks a scheduled session cancelled and releases its fictional capacity. \`rescheduleSession\` revalidates the destination, preserves the session ID, and moves occupancy between slots.
+5. \`publishRecap\` associates predetermined fictional coaching feedback with a session, updating recap status, notifications, and the activity feed.
+6. \`applyBlueprintUpdate\` applies proposed focus changes and flags the recap as applied. Repeating the action cannot apply it twice.
+7. \`markResourceReviewed\` records review completion and only creates the completion activity the first time.
 
-All contextual session states read `virtualNowISO`, not scattered calls to the system clock. Fixtures are generated at store initialization, while an app-level hydration gate keeps server and client markup deterministic and rehydrates saved browser state before rendering the athlete experience. Display formatting uses `America/Toronto`.
+\`\`\`text
+Athlete action
+    |
+Domain rule / deterministic availability
+    |
+One Zustand store action
+    |
+    +-- Sessions and fictional slot occupancy
+    +-- Recaps and Blueprint focuses
+    +-- Resource progress
+    +-- Notifications and development activity
+    |
+Versioned browser-local persistence
+    |
+Home / Training / Blueprint / Library / Notifications
+\`\`\`
 
-## Production replacement seams
+"One coordinated update" refers to one local Zustand state mutation per action. It is not a database transaction across users or devices. Only an authenticated authoritative server could guarantee real multi-client booking capacity.
 
-Availability and payment already sit behind interfaces. The same pattern can be extended to booking, Blueprint, resource, and notification API repositories while preserving domain models and view behavior. Real payment and personal data must remain server-side and must never be persisted in this client store.
+## Time and consistent demo state
 
-## Privacy and security
+All session phase context uses \`virtualNowISO\`. \`deriveSessionPhase\` is a pure function over a session and a timestamp, including a 45-minute "soon" interval.
 
-The demo has no secrets, authentication, customer database, uploaded media, financial form fields, or third-party analytics. Public facility names are used only as text search targets. Production requires authenticated and authorized API access, input validation, audit trails, protected media, consent/guardian rules, secure payment integration, and a documented retention policy.
+Fixtures use the \`America/Toronto\` zone for Ottawa session dates. The date helpers distinguish **calendar-day shifts** from **elapsed hours**. For example, moving a 9:30 AM training session across daylight saving time must keep 9:30 AM local instead of adding a fixed multiple of 86,400,000 milliseconds. Scenario data is rebased to the viewer's current Ottawa calendar date; stable demo clock presets can place the main session in different lifecycle phases without changing the browser's actual clock.
+
+Past and future events are synthetic and intentionally relative to the fixture reference date. This does not imply historical records belong to a real athlete.
+
+## Persistence and hydration
+
+Zustand persists a limited \`DemoState\` snapshot under \`pro-demo-state-v1\` at schema version 1. The actions and transient \`hasHydrated\` flag are not persisted. \`skipHydration\` and the \`AppHydrator\` gate prevent a browser-local snapshot from producing conflicting initial server and client content. On rehydration the app rebases the demo clock and synthetic dated records to the current reference day.
+
+Reset restores a full curated state, including preferences and a cleared booking draft. Switching scenarios restores scenario fixtures while preserving preferences. Presentation Mode can intentionally restore a fresh showcase state.
+
+Browser storage is not protected user-data infrastructure. A future schema migration would need explicit validation and compatibility logic rather than trusting arbitrary local JSON.
+
+## Service boundaries
+
+- **Availability:** \`AvailabilityService\` returns dates, times, and coach choices. The demo implementation is stable and deterministic and adjusts capacity for non-cancelled sessions. Derived date counts reflect the returned slot set for a selected facility and training format.
+- **Payment:** \`PaymentGateway\` is an interface; \`MockPaymentGateway\` creates a fictional success response after a short delay. No financial fields or real transaction calls exist.
+- **Calendar and location:** ICS download and Google Calendar URL creation include an explicit fictional-demo notice. Facility links use a maps search, not a PRO programming claim.
+- **Analytics:** \`AnalyticsAdapter\` accepts named product events but the shipped adapter does nothing. No telemetry is sent.
+
+These seams allow future implementations to replace mock services, but interfaces by themselves do not amount to production infrastructure.
+
+## Security, privacy and access
+
+The demo is an anonymous, single-athlete fixture with no real customer database, passwords, private media, coach portal, payment credentials, or third-party analytics. The PRO brand and named facilities appear in a hypothetical experience; other displayed athlete, coach, availability, pricing, feedback and booking records are fictitious.
+
+A real deployment would require identity, guardian/age-aware access where relevant, authorization by account and role, server-side booking concurrency control, protected media, signed API requests and input validation, payment-provider integration, audits, operational monitoring, consent, retention rules, deletion/export paths, and governance of the organization's actual data.
+
+The present prototype does not claim any of these production safeguards.
