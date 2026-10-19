@@ -32,7 +32,21 @@ export function BookingScreen() {
   const selectedType = state.sessionTypes.find((item) => item.id === draft.sessionTypeId);
   const selectedFacility = state.facilities.find((item) => item.id === draft.facilityId);
   const selectedCoach = state.coaches.find((item) => item.id === draft.coachId);
-  const dates = demoAvailabilityService.listDates(state, 10);
+  const dates = demoAvailabilityService.listDates(
+    state, 10,
+    draft.facilityId && draft.sessionTypeId ? { facilityId: draft.facilityId, sessionTypeId: draft.sessionTypeId } : undefined,
+  );
+  const facilitySlotCount = (facility: Facility) => selectedType
+    ? demoAvailabilityService.listDates(state, 10, { facilityId: facility.id, sessionTypeId: selectedType.id })
+      .reduce((total, day) => total + day.availableCount, 0)
+    : 0;
+  const previewSlots = facilitySheet && selectedType
+    ? demoAvailabilityService.listDates(state, 10, { facilityId: facilitySheet.id, sessionTypeId: selectedType.id })
+      .flatMap((day) => demoAvailabilityService.listTimes(state, {
+        facilityId: facilitySheet.id, sessionTypeId: selectedType.id, dateKey: day.key,
+      }))
+      .slice(0, 3)
+    : [];
 
   useEffect(() => {
     analytics.track("booking_started");
@@ -62,15 +76,19 @@ export function BookingScreen() {
     setProcessing(true);
     setAvailabilityError(false);
     const latestSlots = demoAvailabilityService.listTimes(useAppStore.getState(), { facilityId: draft.facilityId!, sessionTypeId: draft.sessionTypeId!, dateKey: draft.dateKey! });
-    if (!latestSlots.some((slot) => slot.id === selectedSlot.id)) {
+    if (!latestSlots.some((slot) => slot.id === selectedSlot.id && slot.startAt === selectedSlot.startAt && slot.coachIds.includes(draft.coachId!))) {
       setAvailabilityError(true);
       setProcessing(false);
       return;
     }
     const result = await mockPaymentGateway.createPayment({ amount: selectedType.demoPrice, currency: "CAD", method: draft.paymentMethod, reference: selectedSlot.id });
     if (result.success) {
-      completeBooking(selectedSlot, draft.coachId);
-      analytics.track("booking_completed", { sessionType: selectedType.id, demoPrice: selectedType.demoPrice });
+      const bookedId = completeBooking(selectedSlot, draft.coachId);
+      if (bookedId) {
+        analytics.track("booking_completed", { sessionType: selectedType.id, demoPrice: selectedType.demoPrice });
+      } else {
+        setAvailabilityError(true);
+      }
     }
     setProcessing(false);
   };
@@ -117,12 +135,12 @@ export function BookingScreen() {
             <>
               <div className="scroll-filters region-filters" role="group" aria-label="Filter facilities by region">{regions.map((item) => <button key={item} className={region === item ? "active" : ""} onClick={() => setRegion(item)}>{item}</button>)}</div>
               <OttawaMap facilities={state.facilities} selectedId={draft.facilityId} region={region} onSelect={selectFacility} />
-              <div className="facility-list"><div className="section-heading"><p className="eyebrow">Demo locations</p><span>{state.facilities.filter((item) => region === "all" || item.region === region).length} shown</span></div>{state.facilities.filter((item) => region === "all" || item.region === region).map((facility) => <button key={facility.id} className={draft.facilityId === facility.id ? "active" : ""} onClick={() => selectFacility(facility)}><span className="facility-index">{state.facilities.indexOf(facility) + 1}</span><div><strong>{facility.name}</strong><small>{facility.areaLabel} · {3 + state.facilities.indexOf(facility) % 4} demo times</small></div><ChevronRight size={19} /></button>)}</div>
+              <div className="facility-list"><div className="section-heading"><p className="eyebrow">Demo locations</p><span>{state.facilities.filter((item) => region === "all" || item.region === region).length} shown</span></div>{state.facilities.filter((item) => region === "all" || item.region === region).map((facility) => <button key={facility.id} className={draft.facilityId === facility.id ? "active" : ""} onClick={() => selectFacility(facility)}><span className="facility-index">{state.facilities.indexOf(facility) + 1}</span><div><strong>{facility.name}</strong><small>{facility.areaLabel} · {facilitySlotCount(facility)} demo times over 10 days</small></div><ChevronRight size={19} /></button>)}</div>
             </>
           ) : null}
 
           {draft.step === 2 ? (
-            <><div className="booking-context"><CalendarDays size={18} /><div><span>{selectedType?.title}</span><strong>{selectedFacility?.name}</strong></div><button onClick={() => goTo(1)}>Change</button></div><p className="field-label">Choose a demo date</p><div className="booking-date-list">{dates.map((date) => <button key={date.key} className={draft.dateKey === date.key ? "active" : ""} onClick={() => setDraft({ dateKey: date.key, slotId: undefined, coachId: undefined })}><div><span>{formatDate(date.iso, { weekday: "short" })}</span><strong>{formatDate(date.iso, { day: "2-digit" })}</strong></div><p>{formatDate(date.iso, { month: "long" })}</p><small>{date.availableCount} times</small>{draft.dateKey === date.key ? <Check size={18} /> : <ChevronRight size={18} />}</button>)}</div><button className="button primary wide sticky-step-action" disabled={!draft.dateKey} onClick={() => goTo(3)}>View available times <ArrowRight size={18} /></button></>
+            <><div className="booking-context"><CalendarDays size={18} /><div><span>{selectedType?.title}</span><strong>{selectedFacility?.name}</strong></div><button onClick={() => goTo(1)}>Change</button></div><p className="field-label">Choose a demo date</p><div className="booking-date-list">{dates.map((date) => <button key={date.key} disabled={date.availableCount === 0} className={draft.dateKey === date.key ? "active" : ""} onClick={() => setDraft({ dateKey: date.key, slotId: undefined, coachId: undefined })}><div><span>{formatDate(date.iso, { weekday: "short" })}</span><strong>{formatDate(date.iso, { day: "2-digit" })}</strong></div><p>{formatDate(date.iso, { month: "long" })}</p><small>{date.availableCount ? `${date.availableCount} times` : "No times"}</small>{draft.dateKey === date.key ? <Check size={18} /> : <ChevronRight size={18} />}</button>)}</div><button className="button primary wide sticky-step-action" disabled={!draft.dateKey} onClick={() => goTo(3)}>View available times <ArrowRight size={18} /></button></>
           ) : null}
 
           {draft.step === 3 ? (
@@ -144,7 +162,7 @@ export function BookingScreen() {
       </AnimatePresence>
 
       <Sheet open={Boolean(facilitySheet)} onClose={() => setFacilitySheet(undefined)} title="Demo facility" compact>
-        {facilitySheet ? <div className="facility-sheet"><div className="facility-sheet-pin"><MapPin size={22} /></div><p className="eyebrow">{facilitySheet.areaLabel}</p><h3>{facilitySheet.name}</h3><p>{3 + state.facilities.indexOf(facilitySheet) % 4} fictional sessions available</p><div className="preview-times"><span>Tomorrow <strong>4:30 PM</strong></span><span>Saturday <strong>9:30 AM</strong></span><span>Sunday <strong>11:00 AM</strong></span></div><button className="button primary wide" onClick={continueFacility}>View availability <ArrowRight size={17} /></button><small>Location presence does not imply current PRO programming.</small></div> : null}
+        {facilitySheet ? <div className="facility-sheet"><div className="facility-sheet-pin"><MapPin size={22} /></div><p className="eyebrow">{facilitySheet.areaLabel}</p><h3>{facilitySheet.name}</h3><p>{facilitySlotCount(facilitySheet)} fictional times across the next 10 days</p><div className="preview-times">{previewSlots.map((slot) => <span key={slot.id}>{formatDate(slot.startAt, { weekday: "short", month: "short", day: "numeric" })} <strong>{slot.label}</strong></span>)}</div><button className="button primary wide" onClick={continueFacility}>View availability <ArrowRight size={17} /></button><small>Location presence does not imply current PRO programming.</small></div> : null}
       </Sheet>
     </main>
   );

@@ -1,4 +1,4 @@
-import { addMinutes, calendarDayDifference, ottawaDateAt } from "@/domain/dates";
+import { addMinutes, calendarDayDifference, ottawaDateAt, shiftOttawaCalendarDays } from "@/domain/dates";
 import type {
   AppNotification,
   BlueprintFocus,
@@ -166,7 +166,7 @@ export function createDemoState(referenceDate = new Date()): DemoState {
 }
 
 function shiftISO(iso: string, dayDifference: number): string {
-  return new Date(new Date(iso).getTime() + dayDifference * 86_400_000).toISOString();
+  return shiftOttawaCalendarDays(iso, dayDifference);
 }
 
 export function rebaseDemoStateToDate(state: DemoState, referenceDate: Date): DemoState {

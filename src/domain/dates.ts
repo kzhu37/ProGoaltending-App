@@ -74,6 +74,18 @@ export function ottawaDateFromKey(key: string, hour: number, minute = 0): Date {
   return ottawaWallTimeToDate({ year, month, day, hour, minute, second: 0 });
 }
 
+/** Move by Ottawa calendar days, preserving local wall time across DST transitions. */
+export function shiftOttawaCalendarDays(iso: string, dayOffset: number): string {
+  const source = partsInOttawa(new Date(iso));
+  const day = new Date(Date.UTC(source.year, source.month - 1, source.day + dayOffset));
+  return ottawaWallTimeToDate({
+    ...source,
+    year: day.getUTCFullYear(),
+    month: day.getUTCMonth() + 1,
+    day: day.getUTCDate(),
+  }).toISOString();
+}
+
 export function addMinutes(iso: string, minutes: number): string {
   return new Date(new Date(iso).getTime() + minutes * 60_000).toISOString();
 }
@@ -118,7 +130,7 @@ export function formatShortDate(iso: string): string {
 export function formatRelativeDay(iso: string, nowISO: string): string {
   const targetKey = dateKey(iso);
   const todayKey = dateKey(nowISO);
-  const tomorrowKey = dateKey(new Date(new Date(nowISO).getTime() + 86_400_000).toISOString());
+  const tomorrowKey = dateKey(ottawaDateAt(new Date(nowISO), 1, 12).toISOString());
   if (targetKey === todayKey) return "Today";
   if (targetKey === tomorrowKey) return "Tomorrow";
   return formatDate(iso, { weekday: "long" });

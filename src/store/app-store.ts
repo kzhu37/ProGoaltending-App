@@ -3,7 +3,8 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { createDemoState, createScenarioRecap, createScenarioState, rebaseDemoStateToDate } from "@/data/demo-fixtures";
-import { addMinutes, ottawaDateAt } from "@/domain/dates";
+import { addMinutes, dateKey, ottawaDateAt } from "@/domain/dates";
+import { demoAvailabilityService } from "@/services/availability";
 import type {
   BookingDraft,
   DemoScenario,
@@ -89,7 +90,11 @@ export const useAppStore = create<AppStore>()(
         const { sessionTypeId, facilityId } = state.bookingDraft;
         const type = state.sessionTypes.find((item) => item.id === sessionTypeId);
         const facility = state.facilities.find((item) => item.id === facilityId);
-        if (!type || !facility) return undefined;
+        if (!type || !facility || state.bookingDraft.dateKey !== dateKey(slot.startAt)) return undefined;
+        const currentSlot = demoAvailabilityService.listTimes(state, {
+          facilityId: facility.id, sessionTypeId: type.id, dateKey: state.bookingDraft.dateKey,
+        }).find((candidate) => candidate.id === slot.id && candidate.startAt === slot.startAt && candidate.coachIds.includes(coachId));
+        if (!currentSlot) return undefined;
         const sessionId = actionId("session");
         const newSession: TrainingSession = {
           id: sessionId,
@@ -114,7 +119,7 @@ export const useAppStore = create<AppStore>()(
       cancelSession: (sessionId) => {
         const state = get();
         const target = state.sessions.find((sessionItem) => sessionItem.id === sessionId);
-        if (!target || target.status === "cancelled") return;
+        if (!target || target.status !== "scheduled") return;
         const type = state.sessionTypes.find((item) => item.id === target.sessionTypeId);
         set({
           sessions: state.sessions.map((sessionItem) => sessionItem.id === sessionId ? { ...sessionItem, status: "cancelled" } : sessionItem),
@@ -125,7 +130,11 @@ export const useAppStore = create<AppStore>()(
       rescheduleSession: (sessionId, slot, coachId) => {
         const state = get();
         const target = state.sessions.find((sessionItem) => sessionItem.id === sessionId);
-        if (!target) return;
+        if (!target || target.status !== "scheduled") return;
+        const newSlot = demoAvailabilityService.listTimes(state, {
+          facilityId: target.facilityId, sessionTypeId: target.sessionTypeId, dateKey: dateKey(slot.startAt),
+        }).find((candidate) => candidate.id === slot.id && candidate.startAt === slot.startAt && candidate.coachIds.includes(coachId));
+        if (!newSlot) return;
         const type = state.sessionTypes.find((item) => item.id === target.sessionTypeId);
         set({
           sessions: state.sessions.map((sessionItem) => sessionItem.id === sessionId ? { ...sessionItem, startAt: slot.startAt, endAt: addMinutes(slot.startAt, type?.durationMinutes ?? 60), coachId, sourceSlotId: `${slot.id}__${coachId}`, status: "scheduled" } : sessionItem),
