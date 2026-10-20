@@ -22,7 +22,7 @@ PRO Goaltending began primarily as a self-initiated athlete-product project, was
 
 **The engineering challenge is continuity:** when a session is booked, changed, completed, or reviewed, the surrounding athlete experience should not contradict itself.
 
-> **Demo boundary:** This repository is a functional, fictional-data prototype, not PRO Goaltending's production scheduling, payment, or customer-data system. It does not expose real athlete records, live coach availability, current program schedules, or actual prices. The public-facing demo uses permitted PRO branding and fictional product data.
+> **Public demo boundary:** This is a functional prototype built with fictional athlete, coach, booking, and feedback data—not a copy of PRO Goaltending's production systems or customer records. Real coach names and proprietary training videos are excluded from the public version: coaches use numbered placeholders, and Library reviews use code-drawn diagrams with simulated playback and progress rather than actual footage. Availability, prices, and checkout are also simulated. PRO branding and externally hosted training-card photos are separate public-facing assets; see [asset provenance](docs/ASSET_PROVENANCE.md).
 
 <p align="center">
   <img src="docs/diagrams/athlete-lifecycle.svg" alt="Connected athlete lifecycle: choose training, book a fictional session, review coaching feedback, update the development Blueprint, complete assigned practice, and plan the next session. All stages read one local demo state." width="100%">
@@ -168,6 +168,6 @@ I developed the athlete application prototype. The idea was primarily self-initi
 
 The PRO name, logo, and training-card imagery are used with permission. See [asset notes](docs/ASSET_PROVENANCE.md) for bundled versus externally hosted assets.
 
-There are no real athlete profiles, customer records, private coaching messages, uploaded video, real price feeds, payment credentials, or analytics telemetry in the demo. Coach identifiers and coaching content are fictional. For production deployment, authorization and personal-data boundaries would need to be redesigned rather than relying on this store.
+Public demo fixtures were created as fictional examples rather than anonymized exports of private athlete or coaching records. There are no real athlete profiles, customer records, private coaching messages, proprietary training videos, real price feeds, payment credentials, or analytics telemetry in the demo. Coach identifiers and coaching content are fictional. A production deployment would require authorization and personal-data protections rather than relying on this browser-local store.
 
 **Known limitations:** browser-local persistence, no authentication or shared backend, fictional facilities and capacities, mock payment, predetermined resource playback, no live notifications, no real coaching integration, and no measured adoption results. Authentic application captures are not yet committed; see the [capture checklist](docs/DEMO_CAPTURE.md) for reproducible visual evidence requirements.

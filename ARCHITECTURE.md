@@ -71,7 +71,7 @@ These seams allow future implementations to replace mock services, but interface
 
 ## Security, privacy and access
 
-The demo is an anonymous, single-athlete fixture with no real customer database, passwords, private media, coach portal, payment credentials, or third-party analytics. The PRO brand and named facilities appear in a hypothetical experience; other displayed athlete, coach, availability, pricing, feedback and booking records are fictitious.
+The demo is an anonymous, single-athlete fixture with no real customer database, passwords, private media, coach portal, payment credentials, or third-party analytics. [`src/data/demo-fixtures.ts`](src/data/demo-fixtures.ts) defines fictional athlete, session, coach, pricing, and feedback examples rather than anonymized exports of internal records. Coaches use numbered placeholders instead of real names. [`src/components/library/resource-detail-screen.tsx`](src/components/library/resource-detail-screen.tsx) renders an animated conceptual rink diagram with predetermined chapters and progress, not real coaching footage; proprietary training videos are not included. The PRO brand and named facilities appear in a hypothetical experience, and displayed availability and booking records are fictional.
 
 A real deployment would require identity, guardian/age-aware access where relevant, authorization by account and role, server-side booking concurrency control, protected media, signed API requests and input validation, payment-provider integration, audits, operational monitoring, consent, retention rules, deletion/export paths, and governance of the organization's actual data.
 
